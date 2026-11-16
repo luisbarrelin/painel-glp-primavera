@@ -1,0 +1,10 @@
+const brl = new Intl.NumberFormat('pt-BR', {style:'currency',currency:'BRL'});
+const number = new Intl.NumberFormat('pt-BR');
+const price = new Intl.NumberFormat('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+const rows = document.querySelector('#rows');
+const filters = ['search','month','recipient','status'].map(id => document.getElementById(id));
+const flagged = n => n.numero === 37788 || n.numero === 17579;
+function render(){const [query, month, recipient, status]=filters.map(f=>f.value.trim().toUpperCase()); const data=NOTAS.filter(n=>(!query || String(n.numero).padStart(6,'0').includes(query)) && (!month || n.data.slice(5,7)===month) && (!recipient || n.destinatario.includes(recipient.trim())) && (!status || (status==='ATENCAO')===flagged(n)));rows.innerHTML=data.map(n=>`<tr><td class="nf">${String(n.numero).padStart(6,'0')} <span>/ ${String(n.serie).padStart(3,'0')}</span></td><td>${n.emissao}</td><td>Valorem ${n.destinatario.includes('SOJA')?'Soja':'MT'}</td><td>${number.format(n.quantidade_kg)} kg</td><td>R$ ${price.format(n.preco_kg)}</td><td class="amount">${brl.format(n.valor_nota)}</td><td>${n.vencimento}</td><td><span class="state ${flagged(n)?'attention':''}">${flagged(n)?'Verificar':'Sem alerta'}</span></td></tr>`).join('');document.querySelector('#count').textContent=`${data.length} ${data.length===1?'nota encontrada':'notas encontradas'}`;document.querySelector('#empty').hidden=!!data.length;}
+filters.forEach(f=>f.addEventListener('input',render));document.querySelector('#reset').addEventListener('click',()=>{filters.forEach(f=>f.value='');render()});render();
+const months=[['Mar',179107.50],['Abr',138857],['Mai',296629.96],['Jun',741055.50],['Jul',106794]];const chart=document.querySelector('#chart');chart.innerHTML=months.map(([name,value])=>`<div class="bar-row"><span>${name}</span><div class="bar-track"><div class="bar ${name==='Jun'?'peak':''}" style="width:${value/741055.5*100}%"></div></div><strong>${brl.format(value)}</strong></div>`).join('');
+
